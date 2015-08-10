@@ -1702,7 +1702,12 @@ fn short_stability(item: &clean::Item, show_reason: bool) -> Option<String> {
         } else if stab.level == attr::Unstable {
             format!("Unstable{}", Markdown(&reason))
         } else {
-            return None
+            let since = if show_reason {
+                format!(" since {}", Escape(&stab.stable_since))
+            } else {
+                String::new()
+            };
+            format!("Stable{}", since)
         };
         Some(format!("<em class='stab {}'>{}</em>",
                      item.stability_class(), text))
