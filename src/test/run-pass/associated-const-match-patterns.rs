@@ -9,6 +9,7 @@
 // except according to those terms.
 
 #![feature(associated_consts)]
+#![feature(const_fn)]
 
 struct Foo;
 
@@ -19,7 +20,10 @@ enum Bar {
 
 // Use inherent and trait impls to test UFCS syntax.
 impl Foo {
+    const fn new() -> Bar { Bar::Var1 }
+
     const MYBAR: Bar = Bar::Var2;
+    const MYFOO: Bar = Foo::new();
 }
 
 trait HasBar {
@@ -38,6 +42,10 @@ fn main() {
     });
     assert!(match Bar::Var2 {
         <Foo>::MYBAR => true,
+        _ => false,
+    });
+    assert!(match Bar::Var1 {
+        Foo::MYFOO => true,
         _ => false,
     });
     // Trait impl

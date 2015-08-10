@@ -300,6 +300,7 @@ pub fn const_expr_to_pat(tcx: &ty::ctxt, expr: &Expr, span: Span) -> P<ast::Pat>
             let path = match def.full_def() {
                 def::DefStruct(def_id) => def_to_path(tcx, def_id),
                 def::DefVariant(_, variant_did, _) => def_to_path(tcx, variant_did),
+                def::DefAssociatedConst(def_id) => def_to_path(tcx, def_id),
                 _ => unreachable!()
             };
             let pats = args.iter().map(|expr| const_expr_to_pat(tcx, &**expr, span)).collect();
