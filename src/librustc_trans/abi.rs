@@ -18,6 +18,7 @@ use cabi_x86_64;
 use cabi_x86_win64;
 use cabi_arm;
 use cabi_aarch64;
+use cabi_avr;
 use cabi_powerpc;
 use cabi_powerpc64;
 use cabi_s390x;
@@ -710,6 +711,8 @@ impl<'a, 'tcx> FnType<'tcx> {
             PtxKernel => llvm::PtxKernel,
             Msp430Interrupt => llvm::Msp430Intr,
             X86Interrupt => llvm::X86_Intr,
+            AvrInterrupt => llvm::AvrInterrupt,
+            AvrNonBlockingInterrupt => llvm::AvrNonBlockingInterrupt,
 
             // These API constants ought to be more specific...
             Cdecl => llvm::CCallConv,
@@ -940,6 +943,7 @@ impl<'a, 'tcx> FnType<'tcx> {
             },
             "aarch64" => cabi_aarch64::compute_abi_info(cx, self),
             "arm" => cabi_arm::compute_abi_info(cx, self),
+            "avr" => cabi_avr::compute_abi_info(self),
             "mips" => cabi_mips::compute_abi_info(cx, self),
             "mips64" => cabi_mips64::compute_abi_info(cx, self),
             "powerpc" => cabi_powerpc::compute_abi_info(cx, self),
