@@ -57,6 +57,7 @@ pub fn from_str_unchecked<'a, T>(bytes: T) -> u64 where T : IntoIterator<Item=&'
 /// Convert a string of ASCII digits into a bignum.
 ///
 /// Like `from_str_unchecked`, this function relies on the parser to weed out non-digits.
+#[cfg(not(target_arch = "avr"))]
 pub fn digits_to_big(integral: &[u8], fractional: &[u8]) -> Big {
     let mut f = Big::from_small(0);
     for &c in integral.iter().chain(fractional) {
@@ -65,6 +66,11 @@ pub fn digits_to_big(integral: &[u8], fractional: &[u8]) -> Big {
         f.add_small(n);
     }
     f
+}
+
+#[cfg(target_arch = "avr")]
+pub fn digits_to_big(_: &[u8], _: &[u8]) -> Big {
+    avr_unimplemented!()
 }
 
 /// Unwraps a bignum into a 64 bit integer. Panics if the number is too large.
