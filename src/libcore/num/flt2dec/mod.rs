@@ -137,6 +137,7 @@ pub mod estimator;
 pub mod decoder;
 
 /// Digit-generation algorithms.
+#[cfg(not(target_arch = "avr"))]
 pub mod strategy {
     pub mod dragon;
     pub mod grisu;
@@ -195,6 +196,7 @@ impl<'a> Part<'a> {
     /// Writes a part into the supplied buffer.
     /// Returns the number of written bytes, or `None` if the buffer is not enough.
     /// (It may still leave partially written bytes in the buffer; do not rely on that.)
+    #[cfg(not(target_arch = "avr"))]
     pub fn write(&self, out: &mut [u8]) -> Option<usize> {
         let len = self.len();
         if out.len() >= len {
@@ -216,6 +218,11 @@ impl<'a> Part<'a> {
         } else {
             None
         }
+    }
+
+    #[cfg(target_arch = "avr")]
+    pub fn write(&self, _: &mut [u8]) -> Option<usize> {
+        avr_unimplemented!()
     }
 }
 
@@ -243,6 +250,7 @@ impl<'a> Formatted<'a> {
     /// Writes all formatted parts into the supplied buffer.
     /// Returns the number of written bytes, or `None` if the buffer is not enough.
     /// (It may still leave partially written bytes in the buffer; do not rely on that.)
+    #[cfg(not(target_arch = "avr"))]
     pub fn write(&self, out: &mut [u8]) -> Option<usize> {
         if out.len() < self.sign.len() { return None; }
         out[..self.sign.len()].copy_from_slice(self.sign);
@@ -255,6 +263,11 @@ impl<'a> Formatted<'a> {
             }
         }
         Some(written)
+    }
+
+    #[cfg(not(target_arch = "avr"))]
+    pub fn write(&self, _: &mut [u8]) -> Option<usize> {
+        avr_unimplemented!()
     }
 }
 

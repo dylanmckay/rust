@@ -122,6 +122,13 @@
 #![feature(const_str_len)]
 #![feature(non_exhaustive)]
 
+/// Macro used for stubbed-out parts on AVR.
+macro_rules! avr_unimplemented {
+    () => {
+        unimplemented!()
+    };
+}
+
 #[prelude_import]
 #[allow(unused)]
 use prelude::v1::*;
@@ -242,8 +249,10 @@ macro_rules! vector_impl { ($([$f:ident, $($args:tt)*]),*) => { $($f!($($args)*)
 #[allow(missing_docs, missing_debug_implementations, dead_code, unused_imports)]
 #[unstable(feature = "stdsimd", issue = "48556")]
 #[cfg(not(stage0))] // allow changes to how stdsimd works in stage0
+#[cfg(not(target_arch = "avr"))]
 mod coresimd;
 
 #[stable(feature = "simd_arch", since = "1.27.0")]
 #[cfg(not(stage0))]
+#[cfg(not(target_arch = "avr"))]
 pub use coresimd::arch;

@@ -9,12 +9,14 @@
 // except according to those terms.
 
 use fmt::{Formatter, Result, LowerExp, UpperExp, Display, Debug};
+#[cfg(not(target_arch = "avr"))]
 use mem;
 use num::flt2dec;
 
 // Don't inline this so callers don't use the stack space this function
 // requires unless they have to.
 #[inline(never)]
+#[cfg(not(target_arch = "avr"))]
 fn float_to_decimal_common_exact<T>(fmt: &mut Formatter, num: &T,
                                     sign: flt2dec::Sign, precision: usize) -> Result
     where T: flt2dec::DecodableFloat
@@ -29,9 +31,18 @@ fn float_to_decimal_common_exact<T>(fmt: &mut Formatter, num: &T,
     }
 }
 
+#[cfg(target_arch = "avr")]
+fn float_to_decimal_common_exact<T>(_: &mut Formatter, _: &T,
+                                    _: flt2dec::Sign, _: usize) -> Result
+    where T: flt2dec::DecodableFloat
+{
+    avr_unimplemented!()
+}
+
 // Don't inline this so callers that call both this and the above won't wind
 // up using the combined stack space of both functions in some cases.
 #[inline(never)]
+#[cfg(not(target_arch = "avr"))]
 fn float_to_decimal_common_shortest<T>(fmt: &mut Formatter, num: &T,
                                        sign: flt2dec::Sign, precision: usize) -> Result
     where T: flt2dec::DecodableFloat
@@ -44,6 +55,14 @@ fn float_to_decimal_common_shortest<T>(fmt: &mut Formatter, num: &T,
                                                  sign, precision, false, &mut buf, &mut parts);
         fmt.pad_formatted_parts(&formatted)
     }
+}
+
+#[cfg(target_arch = "avr")]
+fn float_to_decimal_common_shortest<T>(_: &mut Formatter, _: &T,
+                                       _: flt2dec::Sign, _: usize) -> Result
+    where T: flt2dec::DecodableFloat
+{
+    avr_unimplemented!()
 }
 
 // Common code of floating point Debug and Display.
@@ -69,6 +88,7 @@ fn float_to_decimal_common<T>(fmt: &mut Formatter, num: &T,
 // Don't inline this so callers don't use the stack space this function
 // requires unless they have to.
 #[inline(never)]
+#[cfg(not(target_arch = "avr"))]
 fn float_to_exponential_common_exact<T>(fmt: &mut Formatter, num: &T,
                                         sign: flt2dec::Sign, precision: usize,
                                         upper: bool) -> Result
@@ -84,9 +104,19 @@ fn float_to_exponential_common_exact<T>(fmt: &mut Formatter, num: &T,
     }
 }
 
+#[cfg(target_arch = "avr")]
+fn float_to_exponential_common_exact<T>(_: &mut Formatter, _: &T,
+                                        _: flt2dec::Sign, _: usize,
+                                        _: bool) -> Result
+    where T: flt2dec::DecodableFloat
+{
+    avr_unimplemented!()
+}
+
 // Don't inline this so callers that call both this and the above won't wind
 // up using the combined stack space of both functions in some cases.
 #[inline(never)]
+#[cfg(not(target_arch = "avr"))]
 fn float_to_exponential_common_shortest<T>(fmt: &mut Formatter,
                                            num: &T, sign: flt2dec::Sign,
                                            upper: bool) -> Result
@@ -101,6 +131,15 @@ fn float_to_exponential_common_shortest<T>(fmt: &mut Formatter,
                                                      &mut buf, &mut parts);
         fmt.pad_formatted_parts(&formatted)
     }
+}
+
+#[cfg(target_arch = "avr")]
+fn float_to_exponential_common_shortest<T>(_: &mut Formatter,
+                                           _: &T, _: flt2dec::Sign,
+                                           _: bool) -> Result
+    where T: flt2dec::DecodableFloat
+{
+    avr_unimplemented!()
 }
 
 // Common code of floating point LowerExp and UpperExp.
