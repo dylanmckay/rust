@@ -1,0 +1,3 @@
+/build/
+.git/
+Dockerfile # don't re-embed the dockerfile just because it changed.
