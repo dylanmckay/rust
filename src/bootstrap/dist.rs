@@ -818,6 +818,7 @@ fn copy_src_dirs(builder: &Builder<'_>, src_dirs: &[&str], exclude_dirs: &[&str]
         const LLVM_TEST: &[&str] = &[
             "llvm-project/llvm/test", "llvm-project\\llvm\\test",
             "llvm-emscripten/test", "llvm-emscripten\\test",
+            "llvm-avr/llvm/test", "llvm-avr\\llvm\\test",
         ];
         if LLVM_TEST.iter().any(|path| spath.contains(path)) &&
             (spath.ends_with(".ll") ||

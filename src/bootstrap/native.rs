@@ -41,6 +41,7 @@ impl Step for Llvm {
             .path("src/llvm-project/llvm")
             .path("src/llvm")
             .path("src/llvm-emscripten")
+            .path("src/llvm-avr/llvm")
     }
 
     fn make_run(run: RunConfig<'_>) {
@@ -54,6 +55,7 @@ impl Step for Llvm {
     /// Compile LLVM for `target`.
     fn run(self, builder: &Builder<'_>) -> PathBuf {
         let target = self.target;
+        let avr = true;
         let emscripten = self.emscripten;
 
         // If we're using a custom LLVM bail out here, but we can only use a
@@ -67,7 +69,12 @@ impl Step for Llvm {
             }
         }
 
-        let (llvm_info, root, out_dir, llvm_config_ret_dir) = if emscripten {
+        let (llvm_info, root, out_dir, llvm_config_ret_dir) = if avr {
+            let info = &builder.avr_llvm_info;
+            let dir = builder.avr_llvm_out(target);
+            let config_dir = dir.join("bin");
+            (info, "src/llvm-avr/llvm", dir, config_dir)
+        } else if emscripten {
             let info = &builder.emscripten_llvm_info;
             let dir = builder.emscripten_llvm_out(target);
             let config_dir = dir.join("bin");

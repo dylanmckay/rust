@@ -50,6 +50,7 @@ fn filter_dirs(path: &Path) -> bool {
         "src/llvm",
         "src/llvm-project",
         "src/llvm-emscripten",
+        "src/llvm-avr",
         "src/libbacktrace",
         "src/librustc_data_structures/owning_ref",
         "src/vendor",

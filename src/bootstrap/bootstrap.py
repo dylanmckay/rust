@@ -712,6 +712,10 @@ class RustBuild(object):
                 backends = self.get_toml('codegen-backends')
                 if backends is None or not 'emscripten' in backends:
                     continue
+            if module.endswith("llvm-avr"):
+                backends = self.get_toml('codegen-backends')
+                if backends is None or not 'avr' in backends:
+                    continue
             check = self.check_submodule(module, slow_submodules)
             filtered_submodules.append((module, check))
             submodules_names.append(module)
