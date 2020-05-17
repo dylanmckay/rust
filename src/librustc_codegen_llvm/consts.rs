@@ -8,6 +8,7 @@ use crate::value::Value;
 use libc::c_uint;
 use log::debug;
 use rustc_codegen_ssa::traits::*;
+use rustc_codegen_ssa::common::TypeKind;
 use rustc_hir as hir;
 use rustc_hir::def_id::DefId;
 use rustc_hir::Node;
@@ -161,7 +162,28 @@ pub fn ptrcast(val: &'ll Value, ty: &'ll Type) -> &'ll Value {
 
 impl CodegenCx<'ll, 'tcx> {
     crate fn const_bitcast(&self, val: &'ll Value, ty: &'ll Type) -> &'ll Value {
-        unsafe { llvm::LLVMConstBitCast(val, ty) }
+        let val_ty = self.val_ty(val);
+
+        let dest_ty = match self.type_kind(val_ty) {
+            // Functions need special considerations - they may have restrictions on their
+            // address spaces dependent on target.
+            TypeKind::Function => {
+                // TODO: assert that 'ty' is a pointer type.
+
+                let inner_pointer_type = self.element_type(ty);
+
+                unsafe {
+                    llvm::LLVMPointerType(
+                        inner_pointer_type,
+                        self.data_layout().instruction_address_space as c_uint)
+                }
+            },
+            _ => {
+                ty
+            },
+        };
+
+        unsafe { llvm::LLVMConstBitCast(val, dest_ty) }
     }
 
     crate fn static_addr_of_mut(
