@@ -18,7 +18,7 @@ use rustc_data_structures::small_c_str::SmallCStr;
 use rustc_hir::def_id::DefId;
 use rustc_middle::ty::layout::TyAndLayout;
 use rustc_middle::ty::{self, Ty, TyCtxt};
-use rustc_target::abi::{self, Align, Size};
+use rustc_target::abi::{self, AddressSpace, Align, Size};
 use rustc_target::spec::{HasTargetSpec, Target};
 use std::borrow::Cow;
 use std::ffi::CStr;
@@ -725,8 +725,8 @@ impl BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         }
         let size = self.intcast(size, self.type_isize(), false);
         let is_volatile = flags.contains(MemFlags::VOLATILE);
-        let dst = self.pointercast(dst, self.type_i8p());
-        let src = self.pointercast(src, self.type_i8p());
+        let dst = self.pointercast(dst, self.type_i8p(AddressSpace::DATA));
+        let src = self.pointercast(src, self.type_i8p(AddressSpace::DATA));
         unsafe {
             llvm::LLVMRustBuildMemCpy(
                 self.llbuilder,
@@ -758,8 +758,8 @@ impl BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         }
         let size = self.intcast(size, self.type_isize(), false);
         let is_volatile = flags.contains(MemFlags::VOLATILE);
-        let dst = self.pointercast(dst, self.type_i8p());
-        let src = self.pointercast(src, self.type_i8p());
+        let dst = self.pointercast(dst, self.type_i8p(AddressSpace::DATA));
+        let src = self.pointercast(src, self.type_i8p(AddressSpace::DATA));
         unsafe {
             llvm::LLVMRustBuildMemMove(
                 self.llbuilder,
@@ -782,7 +782,7 @@ impl BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         flags: MemFlags,
     ) {
         let is_volatile = flags.contains(MemFlags::VOLATILE);
-        let ptr = self.pointercast(ptr, self.type_i8p());
+        let ptr = self.pointercast(ptr, self.type_i8p(AddressSpace::DATA));
         unsafe {
             llvm::LLVMRustBuildMemSet(
                 self.llbuilder,
@@ -1275,7 +1275,7 @@ impl Builder<'a, 'll, 'tcx> {
 
         let lifetime_intrinsic = self.cx.get_intrinsic(intrinsic);
 
-        let ptr = self.pointercast(ptr, self.cx.type_i8p());
+        let ptr = self.pointercast(ptr, self.cx.type_i8p(AddressSpace::DATA));
         self.call(lifetime_intrinsic, &[self.cx.const_u64(size), ptr], None);
     }
 

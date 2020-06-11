@@ -10,7 +10,7 @@ use rustc_middle::mir;
 use rustc_middle::mir::tcx::PlaceTy;
 use rustc_middle::ty::layout::{HasTyCtxt, TyAndLayout};
 use rustc_middle::ty::{self, Ty};
-use rustc_target::abi::{Abi, Align, FieldsShape, Int, TagEncoding};
+use rustc_target::abi::{Abi, AddressSpace, Align, FieldsShape, Int, TagEncoding};
 use rustc_target::abi::{LayoutOf, VariantIdx, Variants};
 
 #[derive(Copy, Clone, Debug)]
@@ -174,7 +174,7 @@ impl<'a, 'tcx, V: CodegenObject> PlaceRef<'tcx, V> {
         debug!("struct_field_ptr: DST field offset: {:?}", offset);
 
         // Cast and adjust pointer.
-        let byte_ptr = bx.pointercast(self.llval, bx.cx().type_i8p());
+        let byte_ptr = bx.pointercast(self.llval, bx.cx().type_i8p(AddressSpace::DATA));
         let byte_ptr = bx.gep(byte_ptr, &[offset]);
 
         // Finally, cast back to the type expected.

@@ -23,7 +23,7 @@ use rustc_middle::ty::layout::{FnAbiExt, HasTyCtxt};
 use rustc_middle::ty::{self, Ty};
 use rustc_middle::{bug, span_bug};
 use rustc_span::Span;
-use rustc_target::abi::{self, HasDataLayout, LayoutOf, Primitive};
+use rustc_target::abi::{self, AddressSpace, HasDataLayout, LayoutOf, Primitive};
 use rustc_target::spec::PanicStrategy;
 
 use std::cmp::Ordering;
@@ -930,7 +930,7 @@ fn codegen_msvc_try(
         //
         // More information can be found in libstd's seh.rs implementation.
         let ptr_align = bx.tcx().data_layout.pointer_align.abi;
-        let slot = bx.alloca(bx.type_i8p(), ptr_align);
+        let slot = bx.alloca(bx.type_i8p(AddressSpace::DATA), ptr_align);
         bx.invoke(try_func, &[data], normal.llbb(), catchswitch.llbb(), None);
 
         normal.ret(bx.const_i32(0));
@@ -952,10 +952,13 @@ fn codegen_msvc_try(
         //
         // When modifying, make sure that the type_name string exactly matches
         // the one used in src/libpanic_unwind/seh.rs.
-        let type_info_vtable = bx.declare_global("??_7type_info@@6B@", bx.type_i8p());
+        let type_info_vtable =
+            bx.declare_global("??_7type_info@@6B@", bx.type_i8p(AddressSpace::DATA));
         let type_name = bx.const_bytes(b"rust_panic\0");
-        let type_info =
-            bx.const_struct(&[type_info_vtable, bx.const_null(bx.type_i8p()), type_name], false);
+        let type_info = bx.const_struct(
+            &[type_info_vtable, bx.const_null(bx.type_i8p(AddressSpace::DATA)), type_name],
+            false,
+        );
         let tydesc = bx.declare_global("__rust_panic_type_info", bx.val_ty(type_info));
         unsafe {
             llvm::LLVMRustSetLinkage(tydesc, llvm::Linkage::LinkOnceODRLinkage);
@@ -1035,14 +1038,14 @@ fn codegen_gnu_try(
         // being thrown.  The second value is a "selector" indicating which of
         // the landing pad clauses the exception's type had been matched to.
         // rust_try ignores the selector.
-        let lpad_ty = bx.type_struct(&[bx.type_i8p(), bx.type_i32()], false);
+        let lpad_ty = bx.type_struct(&[bx.type_i8p(AddressSpace::DATA), bx.type_i32()], false);
         let vals = catch.landing_pad(lpad_ty, bx.eh_personality(), 1);
         let tydesc = match bx.tcx().lang_items().eh_catch_typeinfo() {
             Some(tydesc) => {
                 let tydesc = bx.get_static(tydesc);
-                bx.bitcast(tydesc, bx.type_i8p())
+                bx.bitcast(tydesc, bx.type_i8p(AddressSpace::DATA))
             }
-            None => bx.const_null(bx.type_i8p()),
+            None => bx.const_null(bx.type_i8p(AddressSpace::DATA)),
         };
         catch.add_clause(vals, tydesc);
         let ptr = catch.extract_value(vals, 0);
