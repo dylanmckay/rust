@@ -1907,6 +1907,8 @@ extern "C" {
     pub fn LLVMRustDIBuilderCreateOpDeref() -> i64;
     pub fn LLVMRustDIBuilderCreateOpPlusUconst() -> i64;
 
+    pub fn LLVMRustGetPointerTypeAddressSpace(ty: &Type) -> u32;
+
     #[allow(improper_ctypes)]
     pub fn LLVMRustWriteTypeToString(Type: &Type, s: &RustString);
     #[allow(improper_ctypes)]
