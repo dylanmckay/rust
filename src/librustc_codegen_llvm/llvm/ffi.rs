@@ -1346,12 +1346,6 @@ extern "C" {
         DestTy: &'a Type,
         Name: *const c_char,
     ) -> &'a Value;
-    pub fn LLVMBuildPointerCast(
-        B: &Builder<'a>,
-        Val: &'a Value,
-        DestTy: &'a Type,
-        Name: *const c_char,
-    ) -> &'a Value;
     pub fn LLVMRustBuildIntCast(
         B: &Builder<'a>,
         Val: &'a Value,
