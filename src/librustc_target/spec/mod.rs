@@ -582,6 +582,7 @@ supported_targets! {
     ("x86_64-fuchsia", x86_64_fuchsia),
 
     ("avr-unknown-unknown", avr_unknown_unknown),
+    ("avr-unknown-unknown-atmega328", avr_unknown_unknown_atmega328),
 
     ("x86_64-unknown-l4re-uclibc", x86_64_unknown_l4re_uclibc),
 
